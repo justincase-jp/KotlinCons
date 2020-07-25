@@ -145,7 +145,7 @@ class SequentialCons<out E>(
   companion object {
     operator fun <E> invoke(head: E, tail: List<E>): SequentialCons<E> =
         when (tail) {
-          is RandomAccessCons -> SequentialCons(head, tail, 1, tail.tail)
+          is RandomAccessCons -> SequentialCons(head, tail, 2, tail.tail)
           is SequentialCons -> SequentialCons(head, tail, 1 + tail.prefixSize, tail.suffix)
           else -> SequentialCons(head, tail, 1, tail)
         }
