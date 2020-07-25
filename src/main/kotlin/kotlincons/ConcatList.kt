@@ -9,8 +9,8 @@ import kotlin.let as locally
  */
 internal
 abstract class ConcatList<E> internal constructor(
-    private val prefix: List<E>,
-    private val suffix: List<E>
+    val prefix: List<E>,
+    val suffix: List<E>
 ) : AbstractList<E>(), NestedAccess {
   companion object {
     fun <E> of(prefix: List<E>, suffix: List<E>): ConcatList<E> =
@@ -48,7 +48,13 @@ abstract class ConcatList<E> internal constructor(
           suffix[it]
         }
       }
+}
 
+private
+class RandomAccessConcatList<E>(prefix: List<E>, suffix: List<E>) : ConcatList<E>(prefix, suffix), RandomAccess
+
+internal
+class SequentialConcatList<E>(prefix: List<E>, suffix: List<E>) : ConcatList<E>(prefix, suffix) {
   override
   fun iterator(): Iterator<E> =
       iterator {
@@ -113,9 +119,3 @@ abstract class ConcatList<E> internal constructor(
             delegate.previousIndex() + if (isPrefix) 0 else prefix.size
       }
 }
-
-private
-class RandomAccessConcatList<E>(prefix: List<E>, suffix: List<E>) : ConcatList<E>(prefix, suffix), RandomAccess
-
-internal
-class SequentialConcatList<E>(prefix: List<E>, suffix: List<E>) : ConcatList<E>(prefix, suffix)
