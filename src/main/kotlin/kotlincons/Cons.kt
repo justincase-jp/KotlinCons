@@ -94,6 +94,20 @@ fun <T> Cons<T>.copy(): Cons<T> =
     head cons tail.toList()
 
 
+// Transformation methods
+
+fun <T, R> Cons<T>.map(transform: (T) -> R): Cons<R> =
+    transform(head) cons tail.map(transform)
+
+fun <T, R> Cons<T>.flatMapCons(transform: (T) -> Cons<R>): Cons<R> =
+    transform(head).let {
+      it.head cons ConcatList.of(it.tail, tail.flatMap(transform))
+    }
+
+fun <T> Cons<Cons<T>>.flatten(): Cons<T> =
+    head.head cons (head.tail cons tail).flatten()
+
+
 // Type definitions
 
 interface NestedAccess
@@ -115,15 +129,6 @@ abstract class Cons<out E> internal constructor(val head: E, val tail: List<E>) 
       when (index) {
         0 -> head
         else -> tail[index - 1]
-      }
-
-
-  fun <R> map(transform: (E) -> R): Cons<R> =
-      transform(head) cons tail.map(transform)
-
-  fun <R> flatMapCons(transform: (E) -> Cons<R>): Cons<R> =
-      transform(head).let {
-        it.head cons ConcatList.of(it.tail, tail.flatMap(transform))
       }
 }
 
