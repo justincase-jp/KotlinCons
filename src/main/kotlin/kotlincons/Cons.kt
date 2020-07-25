@@ -32,13 +32,7 @@ fun <T> Iterable<T>.toCons(): Cons<T>? =
         1 -> consOf((this as? List)?.get(0) ?: iterator().next())
         else -> iterator().unsafeCons
       }
-      else -> iterator().let {
-        if (it.hasNext()) {
-          it.unsafeCons
-        } else {
-          null
-        }
-      }
+      else -> iterator().toCons()
     }
 
 fun <T> Array<T>.toCons(): Cons<T>? =
@@ -46,6 +40,17 @@ fun <T> Array<T>.toCons(): Cons<T>? =
       0 -> null
       1 -> consOf(this[0])
       else -> this[0] cons drop(1)
+    }
+
+fun <T> Sequence<T>.toCons(): Cons<T>? =
+    iterator().toCons()
+
+private
+fun <T> Iterator<T>.toCons(): Cons<T>? =
+    if (hasNext()) {
+      unsafeCons
+    } else {
+      null
     }
 
 
