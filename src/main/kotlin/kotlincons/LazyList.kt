@@ -4,6 +4,7 @@ package kotlincons
  * A list implementation that evaluate and store results of the supplied iterator.
  * External synchronization is required for concurrent access.
  */
+internal
 class LazyList<out E>(private val iterator: Iterator<E>) : AbstractList<E>(), RandomAccess {
   private
   val delegate = mutableListOf<E>()
