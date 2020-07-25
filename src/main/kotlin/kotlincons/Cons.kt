@@ -21,6 +21,9 @@ infix fun <T> T.cons(tail: Array<out T>): Cons<T> =
 
 // Copying factory methods
 
+operator fun <T> Cons<T>.plus(elements: Cons<T>): Cons<T> =
+    this + (elements as Iterable<T>)
+
 operator fun <T> Cons<T>.plus(elements: Iterable<T>): Cons<T> =
     head cons tail + elements
 
