@@ -24,25 +24,22 @@ infix fun <T> T.cons(tail: Array<out T>): Cons<T> =
 
 // Copying factory methods
 
-operator fun <T> Cons<T>.plus(elements: Cons<T>): Cons<T> =
-    this + (elements as Iterable<T>)
-
-operator fun <T> Cons<T>.plus(elements: Iterable<T>): Cons<T> =
-    head cons tail + elements
-
-operator fun <T> Cons<T>.plus(elements: Array<out T>): Cons<T> =
-    head cons tail + elements
-
-operator fun <T> Iterable<T>.plus(elements: Cons<T>): Cons<T> =
-    toCons()
-        ?.let { it.head cons ConcatList.of(it.tail, elements.copy()) }
-        ?: elements.copy()
-
-operator fun <T> Array<T>.plus(elements: Cons<T>): Cons<T> =
-    toCons()
-        ?.let { it.head cons ConcatList.of(it.tail, elements.copy()) }
-        ?: elements.copy()
-
+fun <T> Iterable<T>.toCons(): Cons<T>? =
+    when (this) {
+      is Cons -> copy<T>()
+      is Collection -> when (size) {
+        0 -> null
+        1 -> consOf((this as? List)?.get(0) ?: iterator().next())
+        else -> iterator().unsafeCons
+      }
+      else -> iterator().let {
+        if (it.hasNext()) {
+          it.unsafeCons
+        } else {
+          null
+        }
+      }
+    }
 
 fun <T> Array<T>.toCons(): Cons<T>? =
     when (size) {
@@ -51,26 +48,41 @@ fun <T> Array<T>.toCons(): Cons<T>? =
       else -> this[0] cons drop(1)
     }
 
-fun <T> Iterable<T>.toCons(): Cons<T>? =
+
+operator fun <T> Cons<T>.plus(elements: Cons<T>): Cons<T> =
+    this + elements.asIterable()
+
+operator fun <T> Cons<T>.plus(elements: Iterable<T>): Cons<T> =
+    head cons tail + elements
+
+operator fun <T> Cons<T>.plus(elements: Array<out T>): Cons<T> =
+    head cons tail + elements
+
+operator fun <T> Iterable<T>.plus(elements: Cons<T>): Cons<T> =
     when (this) {
-      is Cons -> copy<T>()
-      is Collection -> when (size) {
-        0 -> null
-        1 -> consOf((this as? List)?.get(0) ?: iterator().next())
-        else -> iterator().toCons()
-      }
-      else -> iterator().let {
-        if (it.hasNext()) {
-          it.toCons()
-        } else {
-          null
+      is Cons -> head cons tail + (elements as Iterable<T>)
+      is Collection -> when (val n = size) {
+        0 -> elements.copy()
+        1 -> ((this as? List)?.get(0) ?: iterator().next()) cons elements.toList()
+        else -> when (this) {
+          is List -> this[0] cons subList(1, n) + elements.asIterable()
+          else -> (asSequence() + elements).iterator().unsafeCons
         }
       }
+      else -> (asSequence() + elements).iterator().unsafeCons
     }
 
+operator fun <T> Array<T>.plus(elements: Cons<T>): Cons<T> =
+    when (val n = size) {
+      0 -> elements.copy()
+      1 -> this[0] cons elements.toList()
+      else -> this[0] cons asList().subList(1, n) + elements.asIterable()
+    }
+
+
 private
-fun <T> Iterator<T>.toCons(): Cons<T>? =
-    next() cons asSequence().toList()
+val <T> Iterator<T>.unsafeCons: Cons<T>
+  get() = next() cons asSequence().toList()
 
 private
 fun <T> Cons<T>.copy(): Cons<T> =
