@@ -3,6 +3,26 @@ package kotlincons
 import kotlin.let
 import kotlin.let as locally
 
+@PublishedApi
+internal
+infix fun <T> List<T>.concat(suffix: List<T>): List<T> =
+    if (
+        when (this) {
+          is NestedAccess -> false
+          is RandomAccess -> when (suffix) {
+            is NestedAccess -> false
+            is RandomAccess -> true // Limit the propagation of `RandomAccess` to single level
+            else -> false
+          }
+          else -> false
+        }
+    ) {
+      RandomAccessConcatList(this, suffix)
+    } else {
+      SequentialConcatList(this, suffix)
+    }
+
+
 /**
  * A concatenated view of two lists.
  * External synchronization is required for concurrent modification.
@@ -12,25 +32,6 @@ abstract class ConcatList<E> internal constructor(
     val prefix: List<E>,
     val suffix: List<E>
 ) : AbstractList<E>(), NestedAccess {
-  companion object {
-    fun <E> of(prefix: List<E>, suffix: List<E>): ConcatList<E> =
-        if (
-            when (prefix) {
-              is NestedAccess -> false
-              is RandomAccess -> when (suffix) {
-                is NestedAccess -> false
-                is RandomAccess -> true // Limit the propagation of `RandomAccess` to single level
-                else -> false
-              }
-              else -> false
-            }
-        ) {
-          RandomAccessConcatList(prefix, suffix)
-        } else {
-          SequentialConcatList(prefix, suffix)
-        }
-  }
-
   override
   fun isEmpty(): Boolean =
       prefix.isEmpty() && suffix.isEmpty()

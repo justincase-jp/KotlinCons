@@ -96,12 +96,12 @@ fun <T> Cons<T>.copy(): Cons<T> =
 
 // Transformation methods
 
-fun <T, R> Cons<T>.map(transform: (T) -> R): Cons<R> =
+inline fun <T, R> Cons<T>.map(transform: (T) -> R): Cons<R> =
     transform(head) cons tail.map(transform)
 
-fun <T, R> Cons<T>.flatMapCons(transform: (T) -> Cons<R>): Cons<R> =
+inline fun <T, R> Cons<T>.flatMapCons(transform: (T) -> Cons<R>): Cons<R> =
     transform(head).let {
-      it.head cons ConcatList.of(it.tail, tail.flatMap(transform))
+      it.head cons (it.tail concat tail.flatMap(transform))
     }
 
 fun <T> Cons<Cons<T>>.flatten(): Cons<T> =
