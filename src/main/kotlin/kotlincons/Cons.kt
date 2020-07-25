@@ -101,7 +101,7 @@ inline fun <T, R> Cons<T>.map(transform: (T) -> R): Cons<R> =
 
 inline fun <T, R> Cons<T>.flatMapCons(transform: (T) -> Cons<R>): Cons<R> =
     transform(head).let {
-      it.head cons (it.tail concat tail.flatMap(transform))
+      it.head cons (it.tail.toList() concat tail.flatMap(transform))
     }
 
 fun <T> Cons<Cons<T>>.flatten(): Cons<T> =
