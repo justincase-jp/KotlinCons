@@ -99,7 +99,7 @@ fun <T> Cons<T>.copy(): Cons<T> =
 interface NestedAccess
 
 /**
- * Basically `NonEmptyList`, but extends the [List] interface directly
+ * Basically `NonEmptyList`, but implements the [List] interface directly
  */
 abstract class Cons<out E> internal constructor(val head: E, val tail: List<E>) : AbstractList<E>(), NestedAccess {
   override

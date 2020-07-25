@@ -5,7 +5,7 @@ import kotlin.let as locally
 
 /**
  * A concatenated view of two lists.
- * External synchronization is required for concurrent usage.
+ * External synchronization is required for concurrent modification.
  */
 internal
 abstract class ConcatList<E> internal constructor(
