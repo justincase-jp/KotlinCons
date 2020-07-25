@@ -3,10 +3,13 @@ package kotlincons
 // Basic factory methods
 
 fun <T> consOf(head: T): Cons<T> =
-    head cons emptyList()
+    RandomAccessCons(head, emptyList())
 
 fun <T> consOf(head: T, vararg tail: T): Cons<T> =
     head cons tail
+
+infix fun <T> T.cons(tail: Cons<T>): Cons<T> =
+    SequentialCons(this, tail)
 
 infix fun <T> T.cons(tail: List<T>): Cons<T> =
     when (tail) {
@@ -16,7 +19,7 @@ infix fun <T> T.cons(tail: List<T>): Cons<T> =
     }
 
 infix fun <T> T.cons(tail: Array<out T>): Cons<T> =
-    this cons tail.asList()
+    RandomAccessCons(this, tail.asList())
 
 
 // Copying factory methods
