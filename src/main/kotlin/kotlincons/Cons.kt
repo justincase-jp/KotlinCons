@@ -108,6 +108,12 @@ fun <T> Cons<Cons<T>>.flatten(): Cons<T> =
     head.head cons (head.tail cons tail).flatten()
 
 
+// Type utility
+
+fun <T> Cons<T>.asList(): List<T> =
+    this
+
+
 // Type definitions
 
 interface NestedAccess
